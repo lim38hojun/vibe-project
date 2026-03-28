@@ -33,11 +33,12 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function mapUser(user: SupabaseUser): AuthUser {
-  return {
-    id: user.id,
-    email: user.email ?? "",
-  };
+function toAuthUser(user: SupabaseUser): AuthUser | null {
+  const email = (user.email ?? "").trim();
+  if (!email) {
+    return null;
+  }
+  return { id: user.id, email };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -47,21 +48,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const supabase = createClient();
 
-    supabase.auth.getUser().then(({ data: { user: u } }) => {
-      setUser(u ? mapUser(u) : null);
-      setReady(true);
-    });
+    supabase.auth
+      .getUser()
+      .then(({ data: { user: u } }) => {
+        setUser(u ? toAuthUser(u) : null);
+      })
+      .catch(() => {
+        setUser(null);
+      })
+      .finally(() => {
+        setReady(true);
+      });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ? mapUser(session.user) : null);
+      setUser(session?.user ? toAuthUser(session.user) : null);
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signup = useCallback(async (email: string, password: string): Promise<AuthResult> => {
+    if (password.length === 0) {
+      return { ok: false, message: "비밀번호를 입력해 주세요." };
+    }
     const supabase = createClient();
     const { error } = await supabase.auth.signUp({
       email: email.trim(),
@@ -74,9 +85,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResult> => {
+    const trimmed = email.trim();
+    if (trimmed.length === 0) {
+      return { ok: false, message: "이메일을 입력해 주세요." };
+    }
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: trimmed,
       password,
     });
     if (error) {
@@ -87,7 +102,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     const supabase = createClient();
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw new Error(error.message);
+    }
   }, []);
 
   const value = useMemo<AuthContextValue>(
