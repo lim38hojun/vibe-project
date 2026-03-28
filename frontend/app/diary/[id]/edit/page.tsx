@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { DrawingPad, type DrawingPadHandle } from "@/components/DrawingPad";
 import { useAuth } from "@/contexts/AuthContext";
 import { entryFromRow } from "@/lib/entries";
 import { getMoodEmoji, getMoodLabel, MOOD_OPTIONS } from "@/lib/mood";
@@ -11,8 +12,11 @@ import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { Entry, MoodCode } from "@/types";
 
+const MAX_DRAWING_BASE64_LEN = 1_500_000;
+
 function DiaryEditForm({ entry, userId }: { entry: Entry; userId: string }) {
   const router = useRouter();
+  const drawingPadRef = useRef<DrawingPadHandle>(null);
   const [title, setTitle] = useState(entry.title);
   const [body, setBody] = useState(entry.body);
   const [mood, setMood] = useState<MoodCode>(entry.mood);
@@ -28,6 +32,11 @@ function DiaryEditForm({ entry, userId }: { entry: Entry; userId: string }) {
       setError("제목과 본문을 모두 입력해 주세요.");
       return;
     }
+    const drawingPng = drawingPadRef.current?.getPngBase64OrNull() ?? null;
+    if (drawingPng && drawingPng.length > MAX_DRAWING_BASE64_LEN) {
+      setError("그림 용량이 너무 큽니다. 전체 지우기 후 다시 그려 주세요.");
+      return;
+    }
     setSubmitting(true);
     try {
       const supabase = createClient();
@@ -37,6 +46,7 @@ function DiaryEditForm({ entry, userId }: { entry: Entry; userId: string }) {
           title: t,
           body: b,
           mood,
+          drawing: drawingPng,
         })
         .eq("id", entry.id)
         .eq("user_id", userId)
@@ -85,6 +95,8 @@ function DiaryEditForm({ entry, userId }: { entry: Entry; userId: string }) {
           className="resize-y rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-slate-900 outline-none placeholder:text-slate-400 focus:border-sequence-teal/35 focus:ring-2 focus:ring-sequence-teal/15 dark:border-slate-600 dark:bg-[#021a18] dark:text-slate-100 dark:focus:border-[#5ee9b5]/50 dark:focus:ring-[#5ee9b5]/20"
         />
       </div>
+
+      <DrawingPad ref={drawingPadRef} initialPngBase64={entry.drawing} />
 
       <fieldset className="flex flex-col gap-3">
         <legend className="text-sm font-medium text-slate-700 dark:text-slate-200">기분</legend>
@@ -164,6 +176,7 @@ export default function DiaryEditPage() {
           title: string;
           body: string;
           mood: string;
+          drawing?: string | null;
           created_at: string;
           updated_at: string;
         },

@@ -14,6 +14,8 @@ export interface Entry {
   title: string;
   body: string;
   mood: MoodCode;
+  /** PNG 바이너리를 base64로 인코딩한 문자열(data: 접두어 없음). 없으면 null */
+  drawing: string | null;
   created_at: string;
   updated_at: string;
 }

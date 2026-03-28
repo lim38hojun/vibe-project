@@ -2,17 +2,21 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
+import { DrawingPad, type DrawingPadHandle } from "@/components/DrawingPad";
 import { useAuth } from "@/contexts/AuthContext";
 import { getMoodEmoji, getMoodLabel, MOOD_OPTIONS } from "@/lib/mood";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { MoodCode } from "@/types";
 
+const MAX_DRAWING_BASE64_LEN = 1_500_000;
+
 export default function DiaryNewPage() {
   const { user } = useAuth();
   const router = useRouter();
+  const drawingPadRef = useRef<DrawingPadHandle>(null);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [mood, setMood] = useState<MoodCode | null>(null);
@@ -36,6 +40,11 @@ export default function DiaryNewPage() {
       setError("로그인이 필요합니다.");
       return;
     }
+    const drawingPng = drawingPadRef.current?.getPngBase64OrNull() ?? null;
+    if (drawingPng && drawingPng.length > MAX_DRAWING_BASE64_LEN) {
+      setError("그림 용량이 너무 큽니다. 전체 지우기 후 다시 그려 주세요.");
+      return;
+    }
     setSubmitting(true);
     try {
       const supabase = createClient();
@@ -46,6 +55,7 @@ export default function DiaryNewPage() {
           title: t,
           body: b,
           mood,
+          drawing: drawingPng,
         })
         .select()
         .single();
@@ -68,7 +78,7 @@ export default function DiaryNewPage() {
           새 일기
         </h1>
         <p className="mt-1.5 text-sm text-slate-400 dark:text-slate-500">
-          제목, 본문, 기분을 남겨 보세요.
+          제목, 본문, 기분을 남기고 원하면 그림도 그릴 수 있어요.
         </p>
       </div>
 
@@ -104,6 +114,8 @@ export default function DiaryNewPage() {
             placeholder="오늘 있었던 일을 적어 보세요."
           />
         </div>
+
+        <DrawingPad ref={drawingPadRef} />
 
         <fieldset className="flex flex-col gap-3">
           <legend className="text-sm font-medium text-slate-700 dark:text-slate-200">기분</legend>

@@ -40,6 +40,7 @@ export default function DiaryDetailPage() {
           title: string;
           body: string;
           mood: string;
+          drawing?: string | null;
           created_at: string;
           updated_at: string;
         },
@@ -162,10 +163,20 @@ export default function DiaryDetailPage() {
         </div>
       </div>
 
-      <article>
+      <article className="flex flex-col gap-6">
         <div className="whitespace-pre-wrap rounded-2xl border border-slate-100 bg-white p-8 text-[15px] leading-relaxed text-slate-700 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-[#022c28]/70 dark:text-slate-200">
           {entry.body}
         </div>
+        {entry.drawing ? (
+          <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-[#022c28]/70">
+            <p className="mb-3 text-sm font-medium text-slate-500 dark:text-slate-400">그림</p>
+            <img
+              src={`data:image/png;base64,${entry.drawing}`}
+              alt="일기에 첨부한 그림"
+              className="max-h-[min(24rem,70vh)] w-full rounded-xl border border-slate-100 object-contain dark:border-slate-700"
+            />
+          </div>
+        ) : null}
       </article>
 
       <div className="mt-10">

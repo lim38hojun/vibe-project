@@ -11,6 +11,7 @@ export function entryFromRow(row: {
   title: string;
   body: string;
   mood: string;
+  drawing?: string | null;
   created_at: string;
   updated_at: string;
 }): Entry | null {
@@ -21,6 +22,7 @@ export function entryFromRow(row: {
     title: row.title,
     body: row.body,
     mood: row.mood,
+    drawing: row.drawing ?? null,
     created_at: row.created_at,
     updated_at: row.updated_at,
   };

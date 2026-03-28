@@ -47,6 +47,7 @@ export default function DiaryListPage() {
           title: string;
           body: string;
           mood: string;
+          drawing?: string | null;
           created_at: string;
           updated_at: string;
         }>;
