@@ -24,10 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${notoSansKr.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="flex min-h-full flex-col bg-slate-50 font-sans text-slate-800 dark:bg-[#021a18] dark:text-slate-100">
         <AuthProvider>
           <Header />
-          <main className="flex flex-1 flex-col">{children}</main>
+          <main className="flex flex-1 flex-col bg-slate-50 dark:bg-[#021a18]">{children}</main>
         </AuthProvider>
       </body>
     </html>

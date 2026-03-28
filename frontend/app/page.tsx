@@ -15,8 +15,8 @@ export default function Home() {
   }, [isLoggedIn, ready, router]);
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8">
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">이동 중…</p>
+    <div className="flex flex-1 flex-col items-center justify-center gap-2 p-10">
+      <p className="text-sm font-medium text-slate-400 dark:text-slate-500">이동 중…</p>
     </div>
   );
 }

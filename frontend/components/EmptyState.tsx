@@ -10,12 +10,12 @@ export function EmptyState({
   description = "오늘 하루를 짧게라도 남겨 보세요.",
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/80 px-6 py-14 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
-      <p className="text-lg font-medium text-zinc-800 dark:text-zinc-100">{title}</p>
-      <p className="max-w-sm text-sm text-zinc-500 dark:text-zinc-400">{description}</p>
+    <div className="flex flex-col items-center justify-center gap-5 rounded-2xl border border-dashed border-slate-200 bg-white px-8 py-16 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-700 dark:bg-[#022c28]/40">
+      <p className="text-lg font-medium text-slate-800 dark:text-slate-100">{title}</p>
+      <p className="max-w-sm text-sm leading-relaxed text-slate-400 dark:text-slate-500">{description}</p>
       <Link
         href="/diary/new"
-        className="inline-flex items-center justify-center rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+        className="inline-flex items-center justify-center rounded-lg bg-sequence-mint px-5 py-2.5 text-sm font-semibold text-sequence-teal shadow-sm transition hover:brightness-95"
       >
         새 일기 작성
       </Link>

@@ -12,7 +12,7 @@ export function MoodBadge({ mood, className }: MoodBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-100",
+        "inline-flex items-center gap-1.5 rounded-full border border-sequence-teal/15 bg-sequence-teal/[0.06] px-2.5 py-0.5 text-sm font-medium text-sequence-teal dark:border-[#5ee9b5]/25 dark:bg-[#5ee9b5]/10 dark:text-[#5ee9b5]",
         className,
       )}
     >

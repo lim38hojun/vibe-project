@@ -75,11 +75,11 @@ export default function DiaryDetailPage() {
 
   if (!id) {
     return (
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-12 sm:px-6">
-        <p className="text-center text-zinc-600 dark:text-zinc-400">일기를 찾을 수 없습니다.</p>
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-16 sm:px-8">
+        <p className="text-center text-slate-500 dark:text-slate-400">일기를 찾을 수 없습니다.</p>
         <Link
           href="/diary"
-          className="mt-6 text-center text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
+          className="mt-6 text-center text-sm font-semibold text-sequence-teal underline decoration-sequence-teal/30 underline-offset-2 dark:text-[#5ee9b5] dark:decoration-[#5ee9b5]/40"
         >
           목록으로
         </Link>
@@ -89,21 +89,21 @@ export default function DiaryDetailPage() {
 
   if (loading) {
     return (
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-12 sm:px-6">
-        <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">불러오는 중…</p>
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-16 sm:px-8">
+        <p className="text-center text-sm font-medium text-slate-400 dark:text-slate-500">불러오는 중…</p>
       </div>
     );
   }
 
   if (loadError) {
     return (
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-12 sm:px-6">
-        <p className="text-center text-sm text-red-600 dark:text-red-400" role="alert">
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-16 sm:px-8">
+        <p className="text-center text-sm font-medium text-red-500 dark:text-red-400" role="alert">
           {loadError}
         </p>
         <Link
           href="/diary"
-          className="mt-6 text-center text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
+          className="mt-6 text-center text-sm font-semibold text-sequence-teal underline decoration-sequence-teal/30 underline-offset-2 dark:text-[#5ee9b5] dark:decoration-[#5ee9b5]/40"
         >
           목록으로
         </Link>
@@ -113,16 +113,16 @@ export default function DiaryDetailPage() {
 
   if (!entry) {
     return (
-      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-12 sm:px-6">
-        <p className="text-center text-lg font-medium text-zinc-800 dark:text-zinc-200">
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-16 sm:px-8">
+        <p className="text-center text-lg font-medium text-slate-800 dark:text-slate-200">
           일기를 찾을 수 없습니다
         </p>
-        <p className="mt-2 text-center text-sm text-zinc-500 dark:text-zinc-400">
+        <p className="mt-2 text-center text-sm text-slate-400 dark:text-slate-500">
           삭제되었거나 주소가 잘못되었을 수 있어요.
         </p>
         <Link
           href="/diary"
-          className="mt-8 text-center text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
+          className="mt-8 text-center text-sm font-semibold text-sequence-teal underline decoration-sequence-teal/30 underline-offset-2 dark:text-[#5ee9b5] dark:decoration-[#5ee9b5]/40"
         >
           목록으로
         </Link>
@@ -131,16 +131,16 @@ export default function DiaryDetailPage() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-4 py-8 sm:px-6">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+    <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col px-6 py-10 sm:px-8">
+      <div className="mb-8 flex flex-col gap-6 rounded-2xl border border-slate-100 bg-sequence-teal p-8 text-white shadow-[0_8px_30px_rgb(0,75,68,0.2)] sm:flex-row sm:items-start sm:justify-between dark:border-slate-800 dark:shadow-none">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <MoodBadge mood={entry.mood} />
+            <MoodBadge mood={entry.mood} className="border-white/25 bg-white/10 text-white dark:border-white/25 dark:bg-white/10 dark:text-white" />
           </div>
-          <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">
             {entry.title}
           </h1>
-          <div className="mt-2 flex flex-col gap-0.5 text-sm text-zinc-500 dark:text-zinc-400 sm:flex-row sm:gap-3">
+          <div className="mt-3 flex flex-col gap-1 text-xs font-medium tabular-nums text-white/70 sm:flex-row sm:gap-4">
             <span>작성 {formatDate(entry.created_at)}</span>
             <span>수정 {formatDate(entry.updated_at)}</span>
           </div>
@@ -148,14 +148,14 @@ export default function DiaryDetailPage() {
         <div className="flex shrink-0 flex-wrap gap-2">
           <Link
             href={`/diary/${entry.id}/edit`}
-            className="inline-flex items-center justify-center rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-800 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+            className="inline-flex items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white/20"
           >
             수정
           </Link>
           <button
             type="button"
             onClick={() => void handleDelete()}
-            className="inline-flex items-center justify-center rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800 transition hover:bg-red-100 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200 dark:hover:bg-red-950/60"
+            className="inline-flex items-center justify-center rounded-lg border border-red-300/50 bg-red-500/15 px-4 py-2 text-sm font-medium text-red-100 transition hover:bg-red-500/25"
           >
             삭제
           </button>
@@ -163,7 +163,7 @@ export default function DiaryDetailPage() {
       </div>
 
       <article>
-        <div className="whitespace-pre-wrap rounded-xl border border-zinc-200 bg-white p-5 text-[15px] leading-relaxed text-zinc-800 shadow-sm dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-200">
+        <div className="whitespace-pre-wrap rounded-2xl border border-slate-100 bg-white p-8 text-[15px] leading-relaxed text-slate-700 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-[#022c28]/70 dark:text-slate-200">
           {entry.body}
         </div>
       </article>
@@ -171,7 +171,7 @@ export default function DiaryDetailPage() {
       <div className="mt-10">
         <Link
           href="/diary"
-          className="text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
+          className="text-sm font-semibold text-sequence-teal underline decoration-sequence-teal/30 underline-offset-2 dark:text-[#5ee9b5] dark:decoration-[#5ee9b5]/40"
         >
           ← 목록으로
         </Link>

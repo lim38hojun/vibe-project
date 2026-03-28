@@ -18,21 +18,21 @@ export function Header() {
   const homeHref = isLoggedIn ? "/diary" : "/";
 
   return (
-    <header className="sticky top-0 z-10 border-b border-zinc-200/80 bg-white/90 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/90">
-      <div className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-10 border-b border-slate-100 bg-white/95 shadow-[0_1px_0_rgb(0,0,0,0.03)] backdrop-blur-md dark:border-slate-800/80 dark:bg-[#022c28]/95">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4 sm:px-8">
         <Link
           href={homeHref}
-          className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
+          className="text-lg font-semibold tracking-tight text-sequence-teal dark:text-[#5ee9b5]"
         >
           나만의 일기장
         </Link>
-        <nav className="flex items-center gap-3 text-sm">
+        <nav className="flex items-center gap-4 text-sm">
           {isLoggedIn ? (
             <>
               {pathname !== "/diary" && (
                 <Link
                   href="/diary"
-                  className="text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                  className="font-medium text-slate-500 transition hover:text-sequence-teal dark:text-slate-400 dark:hover:text-[#5ee9b5]"
                 >
                   목록
                 </Link>
@@ -40,7 +40,7 @@ export function Header() {
               <button
                 type="button"
                 onClick={() => void handleLogout()}
-                className="rounded-lg border border-zinc-300 bg-white px-3 py-1.5 font-medium text-zinc-800 transition hover:bg-zinc-50 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
               >
                 로그아웃
               </button>
@@ -51,15 +51,15 @@ export function Header() {
                 href="/login"
                 className={
                   pathname === "/login"
-                    ? "font-medium text-zinc-900 dark:text-zinc-100"
-                    : "text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+                    ? "font-semibold text-sequence-teal dark:text-[#5ee9b5]"
+                    : "font-medium text-slate-500 transition hover:text-sequence-teal dark:text-slate-400 dark:hover:text-[#5ee9b5]"
                 }
               >
                 로그인
               </Link>
               <Link
                 href="/signup"
-                className="rounded-lg bg-zinc-900 px-3 py-1.5 font-medium text-white transition hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                className="rounded-lg bg-sequence-mint px-3 py-2 text-sm font-semibold text-sequence-teal shadow-sm transition hover:brightness-95"
               >
                 회원가입
               </Link>

@@ -22,8 +22,8 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (!ready || !isLoggedIn) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-16">
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">로그인이 필요합니다…</p>
+      <div className="flex flex-1 flex-col items-center justify-center px-6 py-20">
+        <p className="text-sm font-medium text-slate-400 dark:text-slate-500">로그인이 필요합니다…</p>
       </div>
     );
   }
