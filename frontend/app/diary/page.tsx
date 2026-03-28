@@ -1,42 +1,70 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
 import { MoodBadge } from "@/components/MoodBadge";
 import { useAuth } from "@/contexts/AuthContext";
+import { sanitizeDiarySearchTerm } from "@/lib/diary-search";
 import { entryFromRow } from "@/lib/entries";
 import { createClient } from "@/lib/supabase/client";
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import type { Entry } from "@/types";
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 export default function DiaryListPage() {
   const { user } = useAuth();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [listFetching, setListFetching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const isFirstFetch = useRef(true);
 
-  const filteredEntries = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return entries;
-    return entries.filter(
-      (e) => e.title.toLowerCase().includes(q) || e.body.toLowerCase().includes(q),
-    );
-  }, [entries, searchQuery]);
+  useEffect(() => {
+    isFirstFetch.current = true;
+    setLoading(true);
+    setEntries([]);
+  }, [user?.id]);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedSearch(searchQuery), SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(t);
+  }, [searchQuery]);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
     (async () => {
+      const first = isFirstFetch.current;
+      if (first) {
+        setLoading(true);
+      } else {
+        setListFetching(true);
+      }
+      setError(null);
+
       const supabase = createClient();
-      const { data, error: qError } = await supabase
+      const term = sanitizeDiarySearchTerm(debouncedSearch);
+
+      let query = supabase
         .from("entries")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
+
+      if (term.length > 0) {
+        const pattern = `%${term}%`;
+        query = query.or(`title.ilike.${pattern},body.ilike.${pattern}`);
+      }
+
+      const { data, error: qError } = await query;
+
       if (cancelled) return;
+
       if (qError) {
         setError(qError.message);
         setEntries([]);
@@ -54,12 +82,16 @@ export default function DiaryListPage() {
         setEntries(rows.map(entryFromRow).filter((e): e is Entry => e !== null));
         setError(null);
       }
+
       setLoading(false);
+      setListFetching(false);
+      isFirstFetch.current = false;
     })();
+
     return () => {
       cancelled = true;
     };
-  }, [user]);
+  }, [user, debouncedSearch]);
 
   if (!user) {
     return null;
@@ -82,6 +114,8 @@ export default function DiaryListPage() {
       </div>
     );
   }
+
+  const activeSearchLabel = debouncedSearch.trim();
 
   return (
     <div className="relative mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-10 sm:px-8">
@@ -115,45 +149,57 @@ export default function DiaryListPage() {
           autoComplete="off"
           className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] outline-none placeholder:text-slate-400 focus:border-sequence-teal/35 focus:ring-2 focus:ring-sequence-teal/15 dark:border-slate-600 dark:bg-[#022c28]/70 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-[#5ee9b5]/50 dark:focus:ring-[#5ee9b5]/20"
         />
+        {listFetching ? (
+          <p className="mt-2 text-xs font-medium text-slate-400 dark:text-slate-500" aria-live="polite">
+            검색 중…
+          </p>
+        ) : null}
       </div>
 
-      {entries.length === 0 ? (
-        <EmptyState />
-      ) : filteredEntries.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-100 bg-white px-6 py-14 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-[#022c28]/40">
-          <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
-            &quot;{searchQuery.trim()}&quot;에 맞는 일기가 없어요.
-          </p>
-          <button
-            type="button"
-            onClick={() => setSearchQuery("")}
-            className="text-sm font-semibold text-sequence-teal underline decoration-sequence-teal/30 underline-offset-2 dark:text-[#5ee9b5] dark:decoration-[#5ee9b5]/40"
-          >
-            검색 지우기
-          </button>
-        </div>
-      ) : (
-        <ul className="flex flex-col gap-4">
-          {filteredEntries.map((entry) => (
-            <li key={entry.id}>
-              <Link
-                href={`/diary/${entry.id}`}
-                className="block rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition hover:border-sequence-teal/15 hover:shadow-[0_12px_40px_rgb(0,75,68,0.08)] dark:border-slate-800 dark:bg-[#022c28]/60 dark:hover:border-[#5ee9b5]/20"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <h2 className="text-lg font-medium text-slate-800 dark:text-slate-100">
-                    {entry.title}
-                  </h2>
-                  <MoodBadge mood={entry.mood} />
-                </div>
-                <p className="mt-3 text-sm tabular-nums text-slate-400 dark:text-slate-500">
-                  {formatDate(entry.created_at)}
-                </p>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div
+        className={cn(
+          "transition-opacity duration-150",
+          listFetching ? "pointer-events-none opacity-60" : "opacity-100",
+        )}
+      >
+        {entries.length === 0 && !activeSearchLabel ? (
+          <EmptyState />
+        ) : entries.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-100 bg-white px-6 py-14 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-[#022c28]/40">
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+              &quot;{activeSearchLabel}&quot;에 맞는 일기가 없어요.
+            </p>
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              className="text-sm font-semibold text-sequence-teal underline decoration-sequence-teal/30 underline-offset-2 dark:text-[#5ee9b5] dark:decoration-[#5ee9b5]/40"
+            >
+              검색 지우기
+            </button>
+          </div>
+        ) : (
+          <ul className="flex flex-col gap-4">
+            {entries.map((entry) => (
+              <li key={entry.id}>
+                <Link
+                  href={`/diary/${entry.id}`}
+                  className="block rounded-2xl border border-slate-100 bg-white p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition hover:border-sequence-teal/15 hover:shadow-[0_12px_40px_rgb(0,75,68,0.08)] dark:border-slate-800 dark:bg-[#022c28]/60 dark:hover:border-[#5ee9b5]/20"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <h2 className="text-lg font-medium text-slate-800 dark:text-slate-100">
+                      {entry.title}
+                    </h2>
+                    <MoodBadge mood={entry.mood} />
+                  </div>
+                  <p className="mt-3 text-sm tabular-nums text-slate-400 dark:text-slate-500">
+                    {formatDate(entry.created_at)}
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <Link
         href="/diary/new"
