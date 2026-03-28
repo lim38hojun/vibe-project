@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { EmptyState } from "@/components/EmptyState";
 import { MoodBadge } from "@/components/MoodBadge";
@@ -16,6 +16,15 @@ export default function DiaryListPage() {
   const [entries, setEntries] = useState<Entry[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredEntries = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return entries;
+    return entries.filter(
+      (e) => e.title.toLowerCase().includes(q) || e.body.toLowerCase().includes(q),
+    );
+  }, [entries, searchQuery]);
 
   useEffect(() => {
     if (!user) return;
@@ -92,11 +101,39 @@ export default function DiaryListPage() {
         </Link>
       </div>
 
+      <div className="mb-6">
+        <label htmlFor="diary-search" className="sr-only">
+          일기 검색
+        </label>
+        <input
+          id="diary-search"
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="제목이나 내용으로 검색…"
+          autoComplete="off"
+          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] outline-none placeholder:text-slate-400 focus:border-sequence-teal/35 focus:ring-2 focus:ring-sequence-teal/15 dark:border-slate-600 dark:bg-[#022c28]/70 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-[#5ee9b5]/50 dark:focus:ring-[#5ee9b5]/20"
+        />
+      </div>
+
       {entries.length === 0 ? (
         <EmptyState />
+      ) : filteredEntries.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-slate-100 bg-white px-6 py-14 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-slate-800 dark:bg-[#022c28]/40">
+          <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
+            &quot;{searchQuery.trim()}&quot;에 맞는 일기가 없어요.
+          </p>
+          <button
+            type="button"
+            onClick={() => setSearchQuery("")}
+            className="text-sm font-semibold text-sequence-teal underline decoration-sequence-teal/30 underline-offset-2 dark:text-[#5ee9b5] dark:decoration-[#5ee9b5]/40"
+          >
+            검색 지우기
+          </button>
+        </div>
       ) : (
         <ul className="flex flex-col gap-4">
-          {entries.map((entry) => (
+          {filteredEntries.map((entry) => (
             <li key={entry.id}>
               <Link
                 href={`/diary/${entry.id}`}
